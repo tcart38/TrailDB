@@ -1,0 +1,18 @@
+# Database — contains your personal trail data, keep this local only
+data/
+
+# Dependencies — reinstalled automatically, no need to store them
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build output
+frontend/dist/
+
+# Claude Code project settings
+.claude/
+
+# Environment / OS junk
+.env
+.DS_Store
+*.log
