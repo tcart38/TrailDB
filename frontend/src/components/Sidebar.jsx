@@ -35,6 +35,8 @@ const LogoMark = () => (
   </svg>
 )
 
+import { version } from '../../package.json'
+
 const ITEMS = [
   { id: 'database', label: 'Trails',   Icon: IconTrails   },
   { id: 'map',      label: 'Map',      Icon: IconMap      },
@@ -63,6 +65,7 @@ export default function Sidebar({ page, onNavigate }) {
           </button>
         ))}
       </nav>
+      <div className="sidebar-version">v{version}</div>
     </aside>
   )
 }
