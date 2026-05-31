@@ -13,7 +13,16 @@ The nginx frontend container proxies `/api/*` requests to the backend, so only p
 
 ---
 
-## Quick start (local)
+## Quick start (local dev)
+
+```bash
+cd backend && npm install && node src/index.js &
+cd frontend && npm install && npm run dev
+```
+
+Open http://localhost:5174.
+
+## Quick start (Docker)
 
 ```bash
 docker compose up --build
