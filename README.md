@@ -4,7 +4,7 @@ A personal mountain bike trail database. Curate, filter, and rate your favorite 
 
 ## Stack
 
-- **Frontend** — React + Vite, served by nginx on port 3000
+- **Frontend** — React + Vite dev server on port 5174 (production: nginx on port 3000)
 - **Backend** — Node.js + Express REST API on port 3001
 - **Database** — SQLite (single file, volume-mounted)
 - **Deployment** — Docker Compose
@@ -104,7 +104,7 @@ npm install
 npm run dev          # Vite dev server with HMR
 ```
 
-Runs on http://localhost:3000. Vite proxies `/api` → `localhost:3001`, so you can run both locally without Docker.
+Runs on http://localhost:5174. Vite proxies `/api` → `localhost:3001`, so you can run both locally without Docker.
 
 ---
 
