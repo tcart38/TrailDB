@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./backend
+    image: ghcr.io/tcart38/traildb-backend:latest
     restart: unless-stopped
     environment:
       - DB_PATH=/data/traildb.sqlite
@@ -9,7 +9,7 @@ services:
       - ${TRAILDB_DATA_PATH:-./data}:/data
 
   frontend:
-    build: ./frontend
+    image: ghcr.io/tcart38/traildb-frontend:latest
     restart: unless-stopped
     ports:
       - "3000:80"
