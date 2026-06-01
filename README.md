@@ -68,6 +68,52 @@ TRAILDB_DATA_PATH=/your/custom/path
 
 ---
 
+## Unraid (Docker Compose plugin)
+
+In the Unraid Compose plugin, create a new stack and paste the following into each section.
+
+**Compose File**
+
+Builds both containers directly from GitHub. Change port `3005` to any free port on your server.
+
+```yaml
+services:
+  backend:
+    build:
+      context: https://github.com/tcart38/TrailDB.git#main:backend
+    restart: unless-stopped
+    environment:
+      - DB_PATH=/data/traildb.sqlite
+      - NODE_ENV=production
+    volumes:
+      - ${TRAILDB_DATA_PATH}:/data
+
+  frontend:
+    build:
+      context: https://github.com/tcart38/TrailDB.git#main:frontend
+    restart: unless-stopped
+    ports:
+      - "3005:80"
+    depends_on:
+      - backend
+```
+
+**Env File**
+
+```env
+TRAILDB_DATA_PATH=/mnt/user/appdata/traildb/
+```
+
+Hit **Compose Up**. The first build takes a few minutes. Once running, open `http://[your-unraid-ip]:3005`.
+
+Your database lives at `/mnt/user/appdata/traildb/traildb.sqlite` and is never touched by rebuilds.
+
+**Updating**
+
+To pull a new version, hit **Compose Down** then **Compose Up** in the plugin. The build will use the latest code from GitHub automatically.
+
+---
+
 ## First-time setup
 
 1. Go to **Settings → Home Location** and add your Mapbox token (free at mapbox.com — needed for drive times and the map)
