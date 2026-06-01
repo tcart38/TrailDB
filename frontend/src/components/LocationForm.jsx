@@ -193,7 +193,12 @@ function BuiltinField({ col, form, set, toggle, trailTypes, locationOptions }) {
         <div className="form-field">
           <label className="form-label" htmlFor="field-tf-url">{col.label}</label>
           <input id="field-tf-url" type="url" className="form-input" placeholder="https://www.trailforks.com/…"
-            value={form.trailforks_url} onChange={e => set('trailforks_url', e.target.value)} />
+            value={form.trailforks_url} onChange={e => {
+              const url = e.target.value
+              const m = url.match(/\/region\/[^/]+-(\d+)\/?/)
+              const extra = (m && !form.trailforks_rid) ? { trailforks_rid: m[1] } : {}
+              set('trailforks_url', url, extra)
+            }} />
         </div>
       )
     case 'trailforks_rid':
@@ -202,7 +207,7 @@ function BuiltinField({ col, form, set, toggle, trailTypes, locationOptions }) {
           <label className="form-label" htmlFor="field-tf-rid">{col.label}</label>
           <input id="field-tf-rid" type="number" className="form-input" placeholder="e.g. 24103"
             value={form.trailforks_rid || ''} onChange={e => set('trailforks_rid', e.target.value)} />
-          <span className="form-hint">Open your region on Trailforks — the Region ID is at the bottom of the page.</span>
+          <span className="form-hint">Auto-filled from the URL if present, or find it at the bottom of your region's Trailforks page.</span>
         </div>
       )
     case 'notes':
