@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { TAG_PRESETS, getTagStyle } from '../utils/constants.js'
 
 const TYPE_PALETTE = ['tag-xc','tag-enduro','tag-dh','tag-flow','tag-tech','tag-jumps','tag-alt1','tag-alt2']
@@ -15,15 +15,17 @@ function dotColor(typeName, colors) {
   return HASH_TEXT_COLORS[TYPE_PALETTE[h % TYPE_PALETTE.length]] || '#888'
 }
 
-function ColorPicker({ type, current, onSelect, onClose, anchorRef }) {
+export function ColorPicker({ type, current, onSelect, onClose, anchorRef }) {
   const ref = useRef(null)
   const [pos, setPos] = useState({ top: 0, left: 0 })
 
-  useEffect(() => {
-    if (anchorRef?.current) {
-      const r = anchorRef.current.getBoundingClientRect()
-      setPos({ top: r.bottom + 6, left: r.left })
-    }
+  useLayoutEffect(() => {
+    if (!anchorRef?.current || !ref.current) return
+    const r = anchorRef.current.getBoundingClientRect()
+    const pickerH = ref.current.offsetHeight
+    const spaceBelow = window.innerHeight - r.bottom
+    const top = spaceBelow >= pickerH + 8 ? r.bottom + 6 : r.top - pickerH - 6
+    setPos({ top, left: r.left })
   }, [anchorRef])
 
   useEffect(() => {

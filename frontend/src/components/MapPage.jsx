@@ -1,6 +1,34 @@
 import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import { TAG_PRESETS } from '../utils/constants.js'
+
+const DEFAULT_MAP_ACCESS_COLORS = { lift_access: 'blue', shuttle: 'orange', hike_a_bike: 'lime', other: 'slate' }
+
+const ACCESS_LEGEND = [
+  { key: 'lift_access', label: 'Lift Access' },
+  { key: 'shuttle',     label: 'Shuttle' },
+  { key: 'hike_a_bike', label: 'Hike-a-bike' },
+  { key: 'other',       label: 'Other' },
+]
+
+function getMarkerColor(loc, mapAccessColors) {
+  const colors = { ...DEFAULT_MAP_ACCESS_COLORS, ...mapAccessColors }
+  const c = loc.custom || {}
+  const key = c.c_lift_access ? 'lift_access'
+    : c.c_shuttle     ? 'shuttle'
+    : c.c_hike_a_bike ? 'hike_a_bike'
+    : 'other'
+  const colorKey = colors[key]
+  if (colorKey?.startsWith('#')) return colorKey
+  return TAG_PRESETS.find(p => p.id === colorKey)?.swatch ?? '#475569'
+}
+
+function getSwatchColor(colorKey) {
+  if (!colorKey) return '#475569'
+  if (colorKey.startsWith('#')) return colorKey
+  return TAG_PRESETS.find(p => p.id === colorKey)?.swatch ?? '#475569'
+}
 
 function mapStyle(theme) {
   return theme === 'dark'
@@ -8,7 +36,7 @@ function mapStyle(theme) {
     : 'mapbox://styles/mapbox/outdoors-v12'
 }
 
-export default function MapPage({ locations, selectedId, onRowClick, mapboxToken, theme }) {
+export default function MapPage({ locations, selectedId, onRowClick, mapboxToken, theme, mapAccessColors }) {
   const containerRef = useRef(null)
   const mapRef       = useRef(null)
   const markersRef   = useRef({})    // id → { marker, el }
@@ -58,6 +86,8 @@ export default function MapPage({ locations, selectedId, onRowClick, mapboxToken
     withCoords.forEach(loc => {
       const el = document.createElement('div')
       el.className = `map-marker${selectedId === loc.id ? ' map-marker--selected' : ''}`
+      const color = getMarkerColor(loc, mapAccessColors)
+      el.style.setProperty('--marker-color', color)
 
       // Hover popup — set lngLat explicitly so addTo works without setPopup()
       const popup = new mapboxgl.Popup({
@@ -101,7 +131,7 @@ export default function MapPage({ locations, selectedId, onRowClick, mapboxToken
     } else if (withCoords.length === 1) {
       map.flyTo({ center: [withCoords[0].lng, withCoords[0].lat], zoom: 10, duration: 600 })
     }
-  }, [ready, locations, onRowClick]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, locations, onRowClick, mapAccessColors]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Sync selected marker styling without rebuilding everything ───────────
   useEffect(() => {
@@ -126,9 +156,19 @@ export default function MapPage({ locations, selectedId, onRowClick, mapboxToken
     )
   }
 
+  const colors = { ...DEFAULT_MAP_ACCESS_COLORS, ...mapAccessColors }
+
   return (
     <div className="map-wrap">
       <div ref={containerRef} className="map-container" />
+      <div className="map-legend">
+        {ACCESS_LEGEND.map(({ key, label }) => (
+          <div key={key} className="map-legend-item">
+            <span className="map-legend-dot" style={{ background: getSwatchColor(colors[key]) }} />
+            <span className="map-legend-label">{label}</span>
+          </div>
+        ))}
+      </div>
       {missingCount > 0 && (
         <div className="map-note">
           {missingCount} location{missingCount !== 1 ? 's' : ''} not shown — no coordinates

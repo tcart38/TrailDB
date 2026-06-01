@@ -40,6 +40,8 @@ const toFormState = (loc, columns) => {
     notes:              loc?.notes               ?? '',
     ride_logs:          loc?.ride_logs           ?? [],
     routes:             loc?.routes              ?? [],
+    lat:                loc?.lat                 ?? null,
+    lng:                loc?.lng                 ?? null,
     custom,
   }
 }
@@ -574,7 +576,22 @@ export default function LocationPanel({ location, onClose, onSave, onDelete, tra
     setCurrentLocation(location)
     setError(null)
     setConfirmDelete(false)
-  }, [location])
+  }, [location]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When columns load (settings arrive after panel opens), re-sync custom field
+  // values from the location without resetting mode or other form state.
+  useEffect(() => {
+    if (!location) return
+    setForm(prev => {
+      const custom = {}
+      columns.filter(c => !c.builtin).forEach(col => {
+        custom[col.key] = col.key in prev.custom
+          ? prev.custom[col.key]
+          : (location.custom?.[col.key] ?? defaultValue(col.type))
+      })
+      return { ...prev, custom }
+    })
+  }, [columns]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (location?.id) getTrails(location.id).then(setTrails).catch(() => setTrails([]))

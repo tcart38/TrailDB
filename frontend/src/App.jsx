@@ -40,6 +40,7 @@ export default function App() {
   const [locationOptions, setLocationOptions] = useState({ states: [], regions: {} })
   const [homeLocation, setHomeLocation]   = useState(null)
   const [mapboxToken, setMapboxToken]     = useState(null)
+  const [mapAccessColors, setMapAccessColors] = useState({ lift_access: 'blue', shuttle: 'orange', hike_a_bike: 'lime', other: 'slate' })
 
   const loadSettings = useCallback(async () => {
     try {
@@ -50,6 +51,7 @@ export default function App() {
       setLocationOptions(opts ?? { states: [], regions: {} })
       setHomeLocation(s.home_location ?? null)
       setMapboxToken(s.mapbox_token ?? null)
+      setMapAccessColors(s.map_access_colors ?? { lift_access: 'blue', shuttle: 'orange', hike_a_bike: 'lime', other: 'slate' })
     } catch {}
   }, [])
 
@@ -87,6 +89,13 @@ export default function App() {
     const updated = { ...trailTypeColors, [name]: colorKey }
     setTrailTypeColors(updated)
     await updateSetting('trail_type_colors', updated)
+  }
+
+  // ── Map access color handlers ──────────────────────────────────────────
+  const handleUpdateMapAccessColor = async (key, colorKey) => {
+    const updated = { ...mapAccessColors, [key]: colorKey }
+    setMapAccessColors(updated)
+    await updateSetting('map_access_colors', updated)
   }
 
   // ── Column handlers ────────────────────────────────────────────────────
@@ -391,6 +400,7 @@ export default function App() {
                   onRowClick={openRow}
                   mapboxToken={mapboxToken}
                   theme={theme}
+                  mapAccessColors={mapAccessColors}
                 />
               </>
             )}
@@ -419,6 +429,8 @@ export default function App() {
                 onHomeSaved={loc => setHomeLocation(loc)}
                 mapboxToken={mapboxToken}
                 onMapboxTokenSaved={t => setMapboxToken(t)}
+                mapAccessColors={mapAccessColors}
+                onUpdateMapAccessColor={handleUpdateMapAccessColor}
               />
             )}
           </div>

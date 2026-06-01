@@ -26,25 +26,29 @@ A personal mountain bike trail database. Track, filter, and rate your favourite 
 
 ## Local development
 
-**Backend**
+You need **two terminal windows open at the same time** — one for the backend, one for the frontend. Both must be running.
+
+**Terminal 1 — Backend**
 
 ```bash
-cd backend
+cd /path/to/TrailDB/backend
 npm install
 node src/index.js
 ```
 
-Runs on http://localhost:3001.
+Runs on http://localhost:3001. Leave this running.
 
-**Frontend**
+**Terminal 2 — Frontend**
 
 ```bash
-cd frontend
+cd /path/to/TrailDB/frontend
 npm install
 npm run dev
 ```
 
-Runs on http://localhost:5174. Vite proxies `/api` → `localhost:3001`.
+Runs on http://localhost:5174. Vite proxies all `/api` requests to the backend on port 3001.
+
+Open **http://localhost:5174** in your browser. The app won't work if either process isn't running.
 
 ---
 

@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import ColumnsManager from './ColumnsManager.jsx'
-import TypesManager from './TypesManager.jsx'
+import TypesManager, { ColorPicker } from './TypesManager.jsx'
 import { geocode } from '../api/geo.js'
 import { updateSetting } from '../api/settings.js'
+import { TAG_PRESETS } from '../utils/constants.js'
 
 function MapboxTokenSection({ mapboxToken, onSaved }) {
   const [token, setToken] = useState(mapboxToken ?? '')
@@ -116,12 +117,64 @@ function HomeLocationSection({ homeLocation, onSaved }) {
   )
 }
 
+const ACCESS_TYPES = [
+  { key: 'lift_access', label: 'Lift Access' },
+  { key: 'shuttle',     label: 'Shuttle' },
+  { key: 'hike_a_bike', label: 'Hike-a-bike' },
+  { key: 'other',       label: 'Other' },
+]
+
+function MapColorsSection({ mapAccessColors, onUpdateMapAccessColor }) {
+  const [pickerOpen, setPickerOpen] = useState(null)
+  const colorBtnRefs = useRef({})
+
+  return (
+    <div className="settings-section settings-section-manager">
+      <h2 className="settings-section-title">Map Marker Colors</h2>
+      <div className="settings-manager-body">
+        <div className="types-manager">
+          <div className="types-chips">
+            {ACCESS_TYPES.map(({ key, label }) => {
+              const colorKey = mapAccessColors?.[key]
+              const preset = TAG_PRESETS.find(p => p.id === colorKey)
+              const swatch = colorKey?.startsWith('#') ? colorKey : (preset?.swatch ?? '#475569')
+
+              return (
+                <div key={key} className="type-chip">
+                  <button
+                    ref={el => colorBtnRefs.current[key] = el}
+                    className="type-chip-color"
+                    style={{ background: swatch }}
+                    title="Change color"
+                    onClick={() => setPickerOpen(pickerOpen === key ? null : key)}
+                  />
+                  <span className="type-chip-label">{label}</span>
+                  {pickerOpen === key && (
+                    <ColorPicker
+                      type={key}
+                      current={colorKey}
+                      onSelect={(k, v) => { onUpdateMapAccessColor(k, v); setPickerOpen(null) }}
+                      onClose={() => setPickerOpen(null)}
+                      anchorRef={{ current: colorBtnRefs.current[key] }}
+                    />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function SettingsPage({
   theme, onThemeChange,
   columns, onToggleColumn, onAddColumn, onDeleteColumn,
   trailTypes, trailTypeColors, onAddType, onDeleteType, onUpdateTypeColor,
   homeLocation, onHomeSaved,
   mapboxToken, onMapboxTokenSaved,
+  mapAccessColors, onUpdateMapAccessColor,
 }) {
   return (
     <div className="settings-page">
@@ -180,6 +233,11 @@ export default function SettingsPage({
           />
         </div>
       </div>
+
+      <MapColorsSection
+        mapAccessColors={mapAccessColors}
+        onUpdateMapAccessColor={onUpdateMapAccessColor}
+      />
     </div>
   )
 }
